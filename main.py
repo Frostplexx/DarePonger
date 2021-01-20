@@ -2,14 +2,14 @@ import textwrap
 
 import PySimpleGUI as sg
 from PIL import Image, ImageDraw, ImageFont
-from win32api import GetSystemMetrics
+from win32.win32api import GetSystemMetrics
+import pickle
 
 
-# ---------------------------------------------Draw Variables------------------------------------------------------------#
+# --------------------------------------------------------------------Draw---------------------------------------------------------------------------------#
 
-# -----------------------------------------------------------------------------------------------------------------------#
 
-def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name):
+def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name, save_location):
     # image size
     size = 1000
     # border size, the smaller, the bigger the border is??
@@ -21,6 +21,7 @@ def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name):
     # creates image
     img = Image.new('RGBA', (size, size), (255, 0, 0, 0))
 
+
     draw = ImageDraw.Draw(img)
 
     # Text Size
@@ -29,11 +30,11 @@ def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name):
     # sets  border color for difficulty
     # 0 = easy (green), 1 = medium(orange), 2 = hard (red)
     if difficulty == 'Easy':
-        border_color = (107, 115, 50)
+        border_color = (143, 153, 205)
     elif difficulty == 'Normal':
-        border_color = (255, 234, 94)
+        border_color = (107, 115, 50)
     elif difficulty == 'Extreme':
-        border_color = (255, 118, 94)
+        border_color = (122, 7, 39)
 
     # draws an ellipse with the border color, the size of the image. The it draws a smaller withe ellipse over the first
     # one. The difference between the two is the border width
@@ -75,7 +76,7 @@ def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name):
     # tries to apply antialiasing, but it doesnt seem to work
     # TODO revisit antialiasing
     img = img.resize((size, size), Image.ANTIALIAS)
-    img.save(name + '.png')
+    img.save(save_location + '/' + name + '.png')
     img = img.resize((200, 200), Image.ANTIALIAS)
     img.save('files/thumbnail.png')
 
@@ -87,15 +88,18 @@ def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name):
     print("Text Size: " + str(txtSize))
     print("relativ Border thickness: " + str(relBorder))
     print("relativ max Text size: " + str(maxtxtsize))
+    print("Save Location: " + save_location + '/' + name + '.png')
 
 
 def refreshPreview():
     sg.popup_animated(image_source=None)
     sg.popup_animated(image_source='files/thumbnail.png', title="Preview",
                       location=(GetSystemMetrics(0) / 5, GetSystemMetrics(1) / 2))
+                      
+# --------------------------------------------------------------------------------------------------------------------------------------------------------#
 
 
-# -------------------------------------------GUI Variables---------------------------------------------------------------#
+# -----------------------------------------------------------------------GUI------------------------------------------------------------------------------#
 
 # define theme
 sg.theme('SystemDefault1')
@@ -108,13 +112,14 @@ layout = [
     [sg.Text('English', size=(15, 1)), sg.InputText()],
     [sg.Text('Italian', size=(15, 1)), sg.InputText()],
     [sg.Text('Choose Filename', size=(15, 1)), sg.InputText(default_text='file')],
+    [sg.Text('Save Location',  size=(15,1)), sg.Input() ,sg.FolderBrowse()],
     [sg.Save(), sg.Button('Refresh'), sg.Quit()]
 
 ]
 
 # Create the window
-window = sg.Window("Demo", layout)
-drawImage("", "", "", 'Easy', 70, "default")
+window = sg.Window("DarePonger", layout)
+drawImage("", "", "", 'Easy', 70, "default", "F:/Users/inama")
 sg.popup_animated(image_source='files/thumbnail.png', title="Preview",
                   location=(GetSystemMetrics(0) / 5, GetSystemMetrics(1) / 2), keep_on_top=False)
 
@@ -122,12 +127,12 @@ while True:  # The Event Loop
     event, values = window.read()
 
     if event == 'Save':
-        drawImage(values[1], values[2], values[3], values[0], 70, values[4])
+        drawImage(values[1], values[2], values[3], values[0], 70, values[4], values[5])
         refreshPreview()
         print(event, values)
 
     if event == 'Refresh':
-        drawImage(values[1], values[2], values[3], values[0], 70, "default")
+        drawImage(values[1], values[2], values[3], values[0], 70, "default", "F:/Users/inama")
         refreshPreview()
 
     if event == sg.WIN_CLOSED or event == 'Exit':
@@ -137,6 +142,6 @@ while True:  # The Event Loop
 
 window.close()
 
-# -----------------------------------------------------------------------------------------------------------------------#
+# --------------------------------------------------------------------------------------------------------------------------------------------------------#
 
-# TODO new font and make font choosable. Implement settings, that can be saved
+#TODO new font and make font choosable. Implement settings, that can be saved
