@@ -1,13 +1,19 @@
 import textwrap
-
 import PySimpleGUI as sg
 from PIL import Image, ImageDraw, ImageFont
 from win32.win32api import GetSystemMetrics
 import pickle
+import os
+
 
 
 # --------------------------------------------------------------------Draw---------------------------------------------------------------------------------#
 
+# Choose font, in array, 0 is first font
+
+font = os.listdir("fonts/")[0]
+ 
+    	
 
 def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name, save_location):
     # image size
@@ -21,12 +27,12 @@ def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name, save_loca
     # creates image
     img = Image.new('RGBA', (size, size), (255, 0, 0, 0))
 
-
     draw = ImageDraw.Draw(img)
 
     # Text Size
     txtSize = maxtxtsize
 
+    fnt = ImageFont.truetype('fonts/' + "Callibri Regular.ttf", txtSize)
     # sets  border color for difficulty
     # 0 = easy (green), 1 = medium(orange), 2 = hard (red)
     if difficulty == 'Easy':
@@ -53,8 +59,6 @@ def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name, save_loca
     if txtSize > maxtxtsize:
         txtSize = maxtxtsize
 
-    # Choose font
-    fnt = ImageFont.truetype('font/Cocogoose-Classic-Medium.ttf', txtSize)
 
     # after a set length, add a linebreak. how many word per line depends on text size
     text_en = "\n".join(textwrap.wrap(text_en, width=int(100 / txtSize * 18)))
@@ -89,6 +93,9 @@ def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name, save_loca
     print("relativ Border thickness: " + str(relBorder))
     print("relativ max Text size: " + str(maxtxtsize))
     print("Save Location: " + save_location + '/' + name + '.png')
+    print("Installed Fonts: " + str(os.listdir("fonts/")))
+    print(pickle.load(open( "save.p", "rb" )))
+    
 
 
 def refreshPreview():
@@ -103,45 +110,52 @@ def refreshPreview():
 
 # define theme
 sg.theme('SystemDefault1')
-choices = ('Easy', 'Normal', 'Extreme')
+diff = ('Easy', 'Normal', 'Extreme')
 layout = [
 
     [sg.Text('Create Card')],
-    [sg.Text('Select Difficulty', size=(15, 1)), sg.Combo(choices, size=(15, 1), readonly=True, default_value='Easy')],
+    [sg.Text('Select Difficulty', size=(15, 1)), sg.Combo(diff, size=(15, 1), readonly=True, default_value='Easy'), sg.Text("Font"), 
+        sg.Combo(os.listdir("fonts/"), size=(15, 1), readonly=True)],
     [sg.Text('German', size=(15, 1)), sg.InputText()],
     [sg.Text('English', size=(15, 1)), sg.InputText()],
     [sg.Text('Italian', size=(15, 1)), sg.InputText()],
-    [sg.Text('Choose Filename', size=(15, 1)), sg.InputText(default_text='file')],
-    [sg.Text('Save Location',  size=(15,1)), sg.Input() ,sg.FolderBrowse()],
+    [sg.Text('Choose Filename', size=(15, 1)), sg.InputText(default_text="Filename")],
+    [sg.Text('Save Location',  size=(15,1)), sg.Input(default_text=pickle.load(open( "save.p", "rb" ))) ,sg.FolderBrowse()],
     [sg.Save(), sg.Button('Refresh'), sg.Quit()]
 
 ]
 
 # Create the window
 window = sg.Window("DarePonger", layout)
-drawImage("", "", "", 'Easy', 70, "default", "F:/Users/inama")
+#drawImage("", "", "", 'Easy', 70, "default", "files/")
 sg.popup_animated(image_source='files/thumbnail.png', title="Preview",
                   location=(GetSystemMetrics(0) / 5, GetSystemMetrics(1) / 2), keep_on_top=False)
-
 while True:  # The Event Loop
     event, values = window.read()
-
+    save = values[6]
+    pickle.dump(save, open("save.p", "wb"))
     if event == 'Save':
-        drawImage(values[1], values[2], values[3], values[0], 70, values[4], values[5])
-        refreshPreview()
+        font = values[1]
         print(event, values)
+        drawImage(values[2], values[3], values[4], values[0], 70, values[5], values[6])
+        refreshPreview()
+        
 
     if event == 'Refresh':
-        drawImage(values[1], values[2], values[3], values[0], 70, "default", "F:/Users/inama")
+        font = values[1]
+        print(event, values)
+        drawImage(values[2], values[3], values[4], values[0], 70, values[5], values[6])
         refreshPreview()
+        
 
     if event == sg.WIN_CLOSED or event == 'Exit':
         break
-    if event == 'Quit':
+    if event == 'Quit':       
         break
 
 window.close()
 
+ 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------#
 
 #TODO new font and make font choosable. Implement settings, that can be saved
