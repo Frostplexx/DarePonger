@@ -10,7 +10,6 @@ import os
 # --------------------------------------------------------------------Draw---------------------------------------------------------------------------------#
 
 # Choose font, in array, 0 is first font
-
 font = os.listdir("fonts/")[0]
  
     	
@@ -20,19 +19,19 @@ def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name, save_loca
     size = 1000
     # border size, the smaller, the bigger the border is??
     border = 40
-    # 1000 : 50 = x : 2
+    # 1000 : 50 = x : 2 -> some funky calculation, actual bordersoze is not 40 but 50
     relBorder = (size * 2) / border
-    # defines border colors; see line 34
+    # defines border colors as black ; see line 34 
     border_color = (0, 0, 0)
-    # creates image
+    # creates image with alpha 255  = transaprent
     img = Image.new('RGBA', (size, size), (255, 0, 0, 0))
 
     draw = ImageDraw.Draw(img)
 
-    # Text Size
+    # Text Size = max Text size, max Text size is passed to this function (normally 70)
     txtSize = maxtxtsize
-
-    fnt = ImageFont.truetype('fonts/' + "Callibri Regular.ttf", txtSize)
+    #TODO fix this
+    fnt = ImageFont.truetype('fonts/' +  font, txtSize)
     # sets  border color for difficulty
     # 0 = easy (green), 1 = medium(orange), 2 = hard (red)
     if difficulty == 'Easy':
@@ -48,6 +47,7 @@ def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name, save_loca
     draw.ellipse((relBorder, relBorder, size - relBorder, size - relBorder), fill=(255, 255, 255))
 
     # reduces text size, if text is too long. scaling factor found by trial and error
+    #switch statemnts in python are dumb so i am using elif
     if len(text_en) >= 50:
         txtSize = int(150 / len(text_en) * 25)
     elif len(text_de) >= 50:
@@ -80,7 +80,9 @@ def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name, save_loca
     # tries to apply antialiasing, but it doesnt seem to work
     # TODO revisit antialiasing
     img = img.resize((size, size), Image.ANTIALIAS)
+    #saves image at defined location, with choosen name
     img.save(save_location + '/' + name + '.png')
+    #creates a thumbnail image for preview in the gui with 200x200
     img = img.resize((200, 200), Image.ANTIALIAS)
     img.save('files/thumbnail.png')
 
@@ -97,7 +99,7 @@ def drawImage(text_en, text_de, text_it, difficulty, maxtxtsize, name, save_loca
     print(pickle.load(open( "save.p", "rb" )))
     
 
-
+#function to refresh preview image
 def refreshPreview():
     sg.popup_animated(image_source=None)
     sg.popup_animated(image_source='files/thumbnail.png', title="Preview",
@@ -110,7 +112,9 @@ def refreshPreview():
 
 # define theme
 sg.theme('SystemDefault1')
+#array of all aviable difficulties
 diff = ('Easy', 'Normal', 'Extreme')
+#creates layout for the GUI
 layout = [
 
     [sg.Text('Create Card')],
@@ -128,6 +132,7 @@ layout = [
 # Create the window
 window = sg.Window("DarePonger", layout)
 #drawImage("", "", "", 'Easy', 70, "default", "files/")
+#creates the perview image for the first time
 sg.popup_animated(image_source='files/thumbnail.png', title="Preview",
                   location=(GetSystemMetrics(0) / 5, GetSystemMetrics(1) / 2), keep_on_top=False)
 while True:  # The Event Loop
