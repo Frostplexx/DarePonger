@@ -119,7 +119,7 @@ layout = [
 
     [sg.Text('Create Card')],
     [sg.Text('Select Difficulty', size=(15, 1)), sg.Combo(diff, size=(15, 1), readonly=True, default_value='Easy'), sg.Text("Font"), 
-        sg.Combo(os.listdir("fonts/"), size=(15, 1), readonly=True)],
+        sg.Combo(os.listdir("fonts/"), size=(15, 1), readonly=True, default_value=os.listdir("fonts/")[0])],
     [sg.Text('German', size=(15, 1)), sg.InputText()],
     [sg.Text('English', size=(15, 1)), sg.InputText()],
     [sg.Text('Italian', size=(15, 1)), sg.InputText()],
