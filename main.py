@@ -35,9 +35,9 @@ def drawImage(text_en, text_de, difficulty, maxtxtsize, name, save_location):
     # sets  border color for difficulty
     # 0 = easy (green), 1 = medium(orange), 2 = hard (red)
     if difficulty == 'Easy':
-        border_color = (143, 153, 205)
-    elif difficulty == 'Normal':
         border_color = (107, 115, 50)
+    elif difficulty == 'Normal':
+        border_color = (143, 153, 205)
     elif difficulty == 'Extreme':
         border_color = (122, 7, 39)
 
@@ -55,21 +55,11 @@ def drawImage(text_en, text_de, difficulty, maxtxtsize, name, save_location):
         txtSize = maxtxtsize
 
 
-    # after a set length, add a linebreak. how many words per line depends on text size
-    charsInThisLine = 0
-    charPerLine = 20
-    for a in text_de:
-        charsInThisLine += 1
-        if charsInThisLine >= charPerLine:
-            text_de = text_de[:text_de.index(a)] + "\n" + text_de[text_de.index(a):]
-            #"\n".join(textwrap.wrap(text_en, width=a))
-            charsInThisLine = 0
-            charPerLine += 1 #this would be the place for some fancy equation which increases the value like a circle
-        
+
         
 
     text_en = "\n".join(textwrap.wrap(text_en, width=int(100 / txtSize * 12)))
-    #text_de = "\n".join(textwrap.wrap(text_de, width=int(100 / txtSize * 12)))
+    text_de = "\n".join(textwrap.wrap(text_de, width=int(100 / txtSize * 12)))
 
     # defines height and width of string, taking into account the font
     w_de, h_de = draw.textsize(text_de, font=fnt)
