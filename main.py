@@ -41,35 +41,55 @@ def drawImage(text_en, text_de, difficulty, maxtxtsize, name, save_location):
     elif difficulty == 'Extreme':
         border_color = (122, 7, 39)
 
-    # draws an ellipse with the border color, the size of the image. The it draws a smaller withe ellipse over the first
+    # draws an ellipse with the border color, the size of the image. The it draws a smaller white ellipse over the first
     # one. The difference between the two is the border width
     draw.ellipse((0, 0, size, size), fill=border_color)
     draw.ellipse((relBorder, relBorder, size - relBorder, size - relBorder), fill=(255, 255, 255))
 
     # reduces text size, if text is too long. scaling factor found by trial and error
     #switch statemnts in python are dumb so i am using elif
-    if len(text_en) >= 50:
-        txtSize = int(150 / len(text_en) * 25)
-    elif len(text_de) >= 50:
-        txtSize = int(150 / len(text_de) * 25)
+
 
     # clamps max text size to 70, otherwise some text will become larger
     if txtSize > maxtxtsize:
         txtSize = maxtxtsize
 
 
-    # after a set length, add a linebreak. how many word per line depends on text size
+    # after a set length, add a linebreak. how many words per line depends on text size
+    charsInThisLine = 0
+    charPerLine = 20
+    for a in text_de:
+        charsInThisLine += 1
+        if charsInThisLine >= charPerLine:
+            text_de = text_de[:text_de.index(a)] + "\n" + text_de[text_de.index(a):]
+            #"\n".join(textwrap.wrap(text_en, width=a))
+            charsInThisLine = 0
+            charPerLine += 1 #this would be the place for some fancy equation which increases the value like a circle
+        
+        
+
     text_en = "\n".join(textwrap.wrap(text_en, width=int(100 / txtSize * 12)))
-    text_de = "\n".join(textwrap.wrap(text_de, width=int(100 / txtSize * 12)))
+    #text_de = "\n".join(textwrap.wrap(text_de, width=int(100 / txtSize * 12)))
 
     # defines height and width of string, taking into account the font
-    w_en, h_en = draw.textsize(text_en, font=fnt)
     w_de, h_de = draw.textsize(text_de, font=fnt)
-    # draws the 3 texts. x position is the image size - half of the text size / 2.
-    # y positon for german text is centered, other text have a offset from the middle text
-    draw.multiline_text(((size - w_en) / 2, (size - h_en) / 2 - h_de - 50), text_en, fill=(0, 0, 0), font=fnt,
+    w_en, h_en = draw.textsize(text_en, font=fnt)
+    # draws the 2 texts. x position is the image size - half of the text size / 2.
+    # moves the two texts apart by their respective text length - some offset: 
+    #wrong formula but correct answer
+    #21
+    #text height = ~50
+    #(size / 2)  + (h_en*)
+    yOffSet = 25
+    yOffSetGerText = (size / 2)  - h_de - yOffSet
+    yOffSetEngText = (size / 2) + yOffSet
+
+    draw.multiline_text(((size - w_de) / 2, yOffSetGerText), text_de, fill=(0, 0, 0), font=fnt, 
                         align="center")
-    draw.multiline_text(((size - w_de) / 2, (size - h_de) / 2 + 50), text_de, fill=(0, 0, 0), font=fnt, align="center")
+    draw.multiline_text(((size - w_en) / 2, yOffSetEngText), text_en, fill=(0, 0, 0), font=fnt,
+                        align="center")
+
+
 
     # tries to apply antialiasing, but it doesnt seem to work
     # TODO revisit antialiasing
@@ -81,16 +101,10 @@ def drawImage(text_en, text_de, difficulty, maxtxtsize, name, save_location):
     img.save('files/thumbnail.png')
 
     # debug code
-    print("text length en: " + str(len(text_en)))
-    print("text length de: " + str(len(text_de)))
-
-    print("Text Size: " + str(txtSize))
-    print("relativ Border thickness: " + str(relBorder))
-    print("relativ max Text size: " + str(maxtxtsize))
-    print("Save Location: " + save_location + '/' + name + '.png')
-    print("Installed Fonts: " + str(os.listdir("fonts/")))
-    print(pickle.load(open( "save.p", "rb" )))
+    print(h_en)
+    print(h_de)
     
+
 
 #function to refresh preview image
 def refreshPreview():
@@ -136,7 +150,6 @@ while True:  # The Event Loop
         drawImage(values[2], values[3], values[0], 50, values[4], values[5])
         refreshPreview()
         
-
     if event == 'Refresh':
         font = values[1]
         print(event, values)
